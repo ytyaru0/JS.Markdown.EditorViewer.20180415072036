@@ -1,0 +1,12 @@
+@charset "UTF-8";
+html, body {
+    padding: 0px;
+    margin: 0px;
+}
+.wrapper {
+    background-color: #000000;
+}
+#Viewer {
+    color: #FFFFFF;
+    background-color: #000000;
+}
