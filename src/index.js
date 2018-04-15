@@ -4,6 +4,7 @@ App.Viewer = null;
 App.SrcCountElements = null;
 App.DstCountElements = null;
 (function(){
+    viewerCountElements = null;
     $(document).ready(function(){
 	App.Viewer = document.getElementById("Viewer");
 	SetupParser()
@@ -31,6 +32,7 @@ App.DstCountElements = null;
 	editor.focus();
 	editor.on("change", function(e) {
 	    $("#Viewer").html(marked(editor.getSession().getValue()));
+	    viewerCountElements = App.Viewer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
 	})();
 	editor.session.on("changeScrollTop", function(scrollTop) {
 	    var row = editor.renderer.getScrollTopRow();
@@ -45,10 +47,17 @@ App.DstCountElements = null;
 	var totalLines = doc.body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
 
 	// 上記とビューア側の要素の位置を比較して位置指定する
-	var body = document.getElementById("Viewer");
-	var elems = body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
+	//var body = document.getElementById("Viewer");
+	//var elems = body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
+
+	/*
+	var elems = App.Viewer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
 	if (elems.length > 0) {
 	    App.Viewer.scrollTop = elems[totalLines.length-1].offsetTop;
+	}
+	*/
+	if (viewerCountElements.length > 0) {
+	    App.Viewer.scrollTop = viewerCountElements[totalLines.length-1].offsetTop;
 	}
     }
     function LoadDefaultMarkdown(editor) {
