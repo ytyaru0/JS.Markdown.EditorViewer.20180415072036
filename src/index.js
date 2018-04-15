@@ -27,40 +27,16 @@ App.DstCountElements = null;
 	editor.getSession().setMode("ace/mode/markdown");
 	editor.getSession().setUseWrapMode(true);
 	editor.getSession().setTabSize(4);
+	editor.scrollToLine(50, true, true, function () {});
 	editor.focus();
 	editor.on("change", function(e) {
 	    $("#Viewer").html(marked(editor.getSession().getValue()));
 	})();
 	editor.session.on("changeScrollTop", function(scrollTop) {
-	    //console.log('Editor: ' + scrollTop, + ' line: ' + editor.getFirstVisibleRow() + ' current: ' + editor.selection.getCursor().row)
-	    /*
-	    console.log('changeScrollTop');
-	    //console.log(editor.renderere.getScrollTopRow());
-	    var s = editor.getSession();
-	    console.log(s);
-	    
-	    var top_row = s.getScrollTopRow();
-	    var top_col = s.getLine(top_row).length;
-	    var btm_row = s.getScrollBottomRow();
-	    var btm_col = s.getLine(btm_row).length;
-	    //var top_row = editor.renderer.getScrollTopRow();
-	    //var top_col = editor.renderer.getLine(top_row).length;
-	    //var btm_row = editor.renderer.getScrollBottomRow();
-	    //var btm_col = editor.renderer.getLine(btm_row).length;
-	    //var top_row = s.renderer.getScrollTopRow();
-	    //var top_col = s.renderer.getLine(top_row).length;
-	    //var btm_row = s.renderer.getScrollBottomRow();
-	    //var btm_col = s.renderer.getLine(btm_row).length;
-	    var range = new ace.Range(top_row, top_col, btm_row, btm_col);
+	    var row = editor.renderer.getScrollTopRow();
+	    var range = new ace.Range(0,0,row,editor.getSession().getLine(row).length);
 	    SyncScroll(editor, range);
-	    */
 	})();
-	editor.session.selection.on("changeCursor", function(e){
-	    // エディタの先頭からキャレット位置までのMDにおけるHTML要素を取得する
-	    var c = editor.selection.getCursor();
-	    var range = new ace.Range(0,0,c.row,editor.getSession().getLine(c.row).length);
-	    SyncScroll(editor, range);
-	});
 	return editor;
     }
     function SyncScroll(editor, range) {
