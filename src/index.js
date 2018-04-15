@@ -1,9 +1,8 @@
-App = {};
+App = App || {};
 App.Editor = null;
 App.Viewer = null;
 App.SrcCountElements = null;
 App.DstCountElements = null;
-
 (function(){
     $(document).ready(function(){
 	App.Viewer = document.getElementById("Viewer");
@@ -14,23 +13,8 @@ App.DstCountElements = null;
     }, false);
     // ハイライトできるような形式で出力する
     function SetupParser() {
-	var renderer = new marked.Renderer()
-	//renderer.code = function(code, language) {
-	//return '<pre><code class="hljs">' + hljs.highlightAuto(code).value + '</code></pre>';
-	//};
-	renderer.code = function(code, language) {
-	    var delimiter = ':';
-	    var info = language.split(delimiter);
-	    var lang = info.shift();
-	    var fileName = info.join(delimiter);
-	    var fileTag = '';
-	    if (fileName) {
-		fileTag = '<code class="filename">'+fileName+'</code>'
-	    }
-	    return '<pre>' + fileTag + '<code class="hljs">' + hljs.highlightAuto(code).value + '</code></pre>';
-	};
 	marked.setOptions({
-	    renderer: renderer,
+	    renderer: App.Renderer,
 	});
 	$('#Viewer pre code').each(function(i, e) {
 	    hljs.highlightBlock(e, e.className);
