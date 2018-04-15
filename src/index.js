@@ -4,7 +4,10 @@ App.Viewer = null;
 App.SrcCountElements = null;
 App.DstCountElements = null;
 (function(){
-    viewerCountElements = null;
+    //editorCountElements = null; // 位置合わせ用データのキャッシュ
+    viewerCountElements = null; // 位置合わせ用データのキャッシュ
+    mdLine_htmlHeight = []; // 行ごとの座標キャッシュ
+
     $(document).ready(function(){
 	App.Viewer = document.getElementById("Viewer");
 	SetupParser()
@@ -33,32 +36,42 @@ App.DstCountElements = null;
 	editor.on("change", function(e) {
 	    $("#Viewer").html(marked(editor.getSession().getValue()));
 	    viewerCountElements = App.Viewer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
+	    console.log('change');
+	    c = editor.selection.getCursor();
+	    var range = new ace.Range(0,0,c.row,editor.getSession().getLine(c.row).length);
+	    SyncScroll(editor, range);
 	})();
 	editor.session.on("changeScrollTop", function(scrollTop) {
+	//editor.session.on("changeScrollTop", $.debounce(200, true, function(scrollTop) {
+	//editor.session.on("changeScrollTop", $.throttle(200, function(scrollTop) {
+	    console.log('changeScrollTop');
 	    var row = editor.renderer.getScrollTopRow();
 	    var range = new ace.Range(0,0,row,editor.getSession().getLine(row).length);
 	    SyncScroll(editor, range);
+	//}))();
 	})();
 	return editor;
     }
-    function SyncScroll(editor, range) {
-	var parser = new DOMParser();
-	var doc = parser.parseFromString(marked(editor.getSession().getTextRange(range)), 'text/html');
-	var totalLines = doc.body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
-
-	// 上記とビューア側の要素の位置を比較して位置指定する
-	//var body = document.getElementById("Viewer");
-	//var elems = body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
-
-	/*
-	var elems = App.Viewer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
-	if (elems.length > 0) {
-	    App.Viewer.scrollTop = elems[totalLines.length-1].offsetTop;
+    function SyncScroll(editor, range, isUpdate=false) {
+	// 1行ごとに座標をキャッシュ
+	row = Math.round(range.end.row);
+	if (mdLine_htmlHeight.length < row) {
+	    for (var i=0; i<row - mdLine_htmlHeight.length ; i++) {
+		mdLine_htmlHeight.push(-1);
+	    }
 	}
-	*/
-	if (viewerCountElements.length > 0) {
-	    App.Viewer.scrollTop = viewerCountElements[totalLines.length-1].offsetTop;
+	if (!isUpdate && -1 != mdLine_htmlHeight[row]) { App.Viewer.scrollTop = mdLine_htmlHeight[row]; }
+	else {
+	    var parser = new DOMParser();
+	    var doc = parser.parseFromString(marked(editor.getSession().getTextRange(range)), 'text/html');
+	    var totalLines = doc.body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, pre, blockquote, hr, table');
+	    if (viewerCountElements.length > 0) {
+		App.Viewer.scrollTop = viewerCountElements[totalLines.length-1].offsetTop;
+	    }
+	    mdLine_htmlHeight[row] = viewerCountElements[totalLines.length-1].offsetTop;
+	    //console.log(row, mdLine_htmlHeight[row]);
 	}
+	//console.log(row, mdLine_htmlHeight);
     }
     function LoadDefaultMarkdown(editor) {
 	$.ajax({
